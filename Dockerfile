@@ -21,8 +21,8 @@ RUN  apt-get install -y unixodbc-dev
 RUN  Rscript -e 'install.packages("arrow")'
 RUN  wget https://github.com/VSCodium/vscodium/releases/download/1.76.2.23074/codium_1.76.2.23074_amd64.deb
 RUN  dpkg -i codium_1.76.2.23074_amd64.deb
-RUN  wget -c https://github.com/quarto-dev/quarto-cli/releases/download/v1.3.290/quarto-1.3.290-linux-arm64.deb
-RUN  dpkg -i quarto-1.3.290-linux-arm64.deb
+RUN  wget -c https://github.com/quarto-dev/quarto-cli/releases/download/v1.3.290/quarto-1.3.290-linux-amd64.deb
+RUN  dpkg -i quarto-1.3.290-linux-amd64.deb
 RUN  wget --quiet https://repo.anaconda.com/archive/Anaconda3-2023.03-Linux-x86_64.sh -O ~/anaconda.sh \
     && /bin/bash ~/anaconda.sh -b -p /opt/conda \
     && rm ~/anaconda.sh \
