@@ -1,0 +1,2 @@
+options(download.file.method = "wget")
+install.packages(c("curl","boot","class","cluster" ,"codetools","foreign","lattice","MASS","Matrix","mgcv","nlme","rpart","survival","tidyverse" ,"RODBC","reticulate","rJava","pkgdown","languageserver"))

@@ -1,0 +1,11 @@
+{
+    "extensions.autoCheckUpdates": false,
+    "extensions.autoUpdate": false,
+    "python.dataScience.sendSelectionToInteractiveWindow": false,
+    "[python]": {
+
+        "editor.wordBasedSuggestions": false
+    },
+    "python.pythonPath": "/opt/conda/bin/python",
+    "terminal.integrated.inheritEnv": false
+}

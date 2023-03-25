@@ -1,0 +1,95 @@
+FROM rocker/rstudio:latest
+
+LABEL maintainer="Ilan Gofer"
+ENV DEBIAN_FRONTEND noninteractive
+
+WORKDIR /workspace/
+COPY . .
+
+RUN mkdir /workspace/rstudio
+RUN cp -a /usr/lib/rstudio-server/. /workspace/rstudio
+RUN apt --allow-unauthenticated --allow-insecure-repositories update 
+RUN apt-get install -y \
+                     gnupg \
+                     gnupg1 \
+                     gnupg2
+
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 605C66F00D6C9793
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+
+#RUN cp debian.list /etc/apt/sources.list.d
+RUN echo "deb http://miktex.org/download/ubuntu focal universe" | tee /etc/apt/sources.list.d/miktex.list
+RUN echo "deb http://miktex.org/download/ubuntu bionic universe" | tee /etc/apt/sources.list.d/miktex.list
+
+
+RUN apt --allow-unauthenticated --allow-insecure-repositories update 
+RUN apt install -y apt-transport-https
+RUN apt-get install -y \
+                    apt-utils \
+                    git \
+                    build-essential \
+                    wget \
+                    htop \
+                    nano \
+                    openssl libssl-dev \
+                    libcairo2 \
+                    libcairo2-dev \
+                    libcurl4-openssl-dev \
+                    unixodbc* \
+                    unixodbc-dev \
+                    r-cran-rodbc \
+                    freetds-bin \
+                    freetds-common \
+                    tdsodbc \
+                    libxt-dev libgtk2.0-dev xvfb xauth xfonts-base \
+                    libxml2-dev \
+                    default-jre \
+                    openjdk-8-jdk \
+                    default-jdk \
+                    # multiarch-support \
+                    r-cran-rjava \
+                    freetds-dev \
+                    libudunits2-dev \
+                    gfortran \
+                     wget \
+                    libxtst6 \
+                    default-jre \
+                    curl \
+                    openssh-client \
+                    openssh-server \
+                    openssh-sftp-server \
+                    librsvg2-dev \
+                    samba \
+                    perl \
+                    libv8-dev \
+                    libnode-dev \
+                    libnet-ssleay-perl \
+                    libauthen-pam-perl \
+                    libpam-runtime \
+                    libio-pty-perl  \
+                    cifs-utils \
+                    zsh \
+                    powerline \
+                    fonts-powerline \
+                    gedit\
+                    # julia \
+                    krb5-kdc\
+                    krb5-admin-server\
+                    krb5-config\
+                    krb5-user \
+                    msktutil  \
+                    libgit2-dev \
+                    libpq-dev \
+                    libfreetype6-dev\
+                    libfreetype6\
+                    libpng-dev\ 
+                    libtiff5-dev\
+                    libjpeg-dev\
+                    nodejs\
+                    npm\
+                    cmake\
+                    graphviz
+                    #miktex
+RUN export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && npm install -g mermaid.cli                    
+    
