@@ -3,6 +3,8 @@ FROM nvcr.io/nvidia/pytorch:23.04-py3
 WORKDIR /workspace/
 COPY . .
 
+RUN apt-get update
+RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y tzdata
 RUN pip install -r requirements.txt
 RUN apt --allow-unauthenticated --allow-insecure-repositories update 
 RUN apt install -y apt-transport-https
