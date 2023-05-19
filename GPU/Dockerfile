@@ -4,10 +4,11 @@ WORKDIR /workspace/
 COPY . .
 
 RUN apt-get update
-RUN DEBIAN_FRONTEND noninteractive TZ=Etc/UTC apt-get install -y tzdata
+RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y tzdata krb5-kdc krb5-admin-server krb5-config krb5-user 
 RUN pip install -r requirements.txt
 RUN apt --allow-unauthenticated --allow-insecure-repositories update 
 RUN apt install -y apt-transport-https
+RUN export DEBIAN_FRONTEND=noninteractive
 RUN apt-get install -y \
                     apt-utils \
                     git \
@@ -55,10 +56,6 @@ RUN apt-get install -y \
                     powerline \
                     fonts-powerline \
                     gedit\
-                    krb5-kdc\
-                    krb5-admin-server\
-                    krb5-config\
-                    krb5-user \
                     msktutil  \
                     libgit2-dev \
                     libpq-dev \
