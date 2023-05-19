@@ -1,0 +1,92 @@
+# Use rocker/rstudio as base image
+FROM rocker/rstudio:4.2.1
+
+LABEL maintainer="Ilan Gofer"
+
+ENV DEBIAN_FRONTEND noninteractive
+
+WORKDIR /workspace/
+
+# Copy local files to container
+COPY . .
+
+# Prepare rstudio and install necessary keys
+RUN mkdir /workspace/rstudio && \
+    cp -a /usr/lib/rstudio-server/. /workspace/rstudio && \
+    apt --allow-unauthenticated --allow-insecure-repositories update && \
+    apt-get install -y gnupg gnupg1 gnupg2 && \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 605C66F00D6C9793 0E98404D386FA1D9 648ACFD622F3D138
+
+# Set up repositories
+RUN echo "deb http://miktex.org/download/ubuntu focal universe" | tee /etc/apt/sources.list.d/miktex.list && \
+    echo "deb http://miktex.org/download/ubuntu bionic universe" | tee /etc/apt/sources.list.d/miktex.list
+
+# Install required packages
+RUN apt --allow-unauthenticated --allow-insecure-repositories update && \
+    apt-get install -y gnupg gnupg1 gnupg2 curl apt-transport-https apt-utils \
+                    git build-essential wget htop nano openssl libssl-dev libcairo2 \
+                    libcairo2-dev libcurl4-openssl-dev unixodbc* unixodbc-dev r-cran-rodbc \
+                    freetds-bin freetds-common tdsodbc libxt-dev libgtk2.0-dev xvfb xauth \
+                    xfonts-base libxml2-dev default-jre openjdk-8-jdk default-jdk r-cran-rjava \
+                    freetds-dev libudunits2-dev gfortran wget libxtst6 default-jre curl \
+                    openssh-client openssh-server openssh-sftp-server librsvg2-dev samba perl \
+                    libv8-dev libnode-dev libnet-ssleay-perl libauthen-pam-perl libpam-runtime \
+                    libio-pty-perl cifs-utils zsh powerline fonts-powerline gedit krb5-kdc \
+                    krb5-admin-server krb5-config krb5-user msktutil libgit2-dev libpq-dev \
+                    libfreetype6-dev libfreetype6 libpng-dev libtiff5-dev libjpeg-dev nodejs \
+                    npm cmake graphviz && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install mermaid.cli
+RUN export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && npm install -g mermaid.cli
+
+# Run system updates and install microsoft packages
+RUN lsb_release -rs && \
+    chsh -s /usr/bin/zsh root && \
+    /bin/sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)" && \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 277A7293F59E4889 && \
+    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+    apt-get update && \
+    ACCEPT_EULA=Y apt-get -y install msodbcsql18 mssql-tools18 unixodbc-dev && \
+    echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bash_profile && \
+    echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
+
+# Install R packages
+RUN Rscript packages.r
+
+# Install additional packages and configurations based on the original Dockerfile
+# Install Anaconda
+RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2023.03-Linux-x86_64.sh -O ~/anaconda.sh && \
+    /bin/bash ~/anaconda.sh -b -p /opt/conda && \
+    rm ~/anaconda.sh && \
+    ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+    echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate base" >> ~/.bashrc \
+    /opt/conda/bin/pip install -r requirements.txt
+
+# Install other applications
+RUN wget https://github.com/VSCodium/vscodium/releases/download/1.76.2.23074/codium_1.76.2.23074_amd64.deb && \
+    dpkg -i codium_1.76.2.23074_amd64.deb && \
+    wget -c https://github.com/quarto-dev/quarto-cli/releases/download/v1.3.290/quarto-1.3.290-linux-amd64.deb && \
+    dpkg -i quarto-1.3.290-linux-amd64.deb && \
+    /opt/conda/bin/pip install -r requirements.txt && \
+    wget https://download.jetbrains.com/python/pycharm-community-2022.3.tar.gz && \
+    rm pycharm-community-2022.3.tar.gz
+
+# Install VSCode
+RUN curl -fsSL https://code-server.dev/install.sh | sh && \
+    mkdir -p ~/.local/share/code-server/ && \
+    mkdir -p ~/.local/share/code-server/User
+
+# Install VSCode Extensions
+RUN code-server --force --install-extension ms-python.python \
+    code-server --force --install-extension REditorSupport.r-2.8.0.vsix\
+    code-server --force --install-extension GrapeCity.gc-excelviewer \
+    code-server --force --install-extension ms-toolsai.jupyter && \
+    code-server --force --install-extension ritwickdey.LiveServer \
+    code-server --force --install-extension ms-python.vscode-pylance-2023.5.11.vsix \
+    code-server --force --install-extension neuron.neuron-IPE-1.0.4.vsix \
+    code-server --force --install-extension quarto.quarto \
+    code-server --force --install-extension ms-toolsai.jupyter-keymap \
+    code-server --force --install-extension njpwerner.autodocstring  
