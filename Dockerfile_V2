@@ -1,10 +1,13 @@
 # Use rocker/rstudio as base image
-FROM rocker/rstudio:4.2.1
+FROM ubuntu:latest
 
 LABEL maintainer="Ilan Gofer"
 
 ENV DEBIAN_FRONTEND noninteractive
 
+RUN  mkdir /workspace
+
+#creating work dir workspace 
 WORKDIR /workspace/
 
 # Copy local files to container
@@ -12,14 +15,13 @@ COPY . .
 
 # Prepare rstudio and install necessary keys
 RUN mkdir /workspace/rstudio && \
-    cp -a /usr/lib/rstudio-server/. /workspace/rstudio && \
     apt --allow-unauthenticated --allow-insecure-repositories update && \
-    apt-get install -y gnupg gnupg1 gnupg2 && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 605C66F00D6C9793 0E98404D386FA1D9 648ACFD622F3D138
+    apt-get install -y gnupg gnupg1 gnupg2 
+    #apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 605C66F00D6C9793 0E98404D386FA1D9 648ACFD622F3D138
 
 # Set up repositories
-RUN echo "deb http://miktex.org/download/ubuntu focal universe" | tee /etc/apt/sources.list.d/miktex.list && \
-    echo "deb http://miktex.org/download/ubuntu bionic universe" | tee /etc/apt/sources.list.d/miktex.list
+#RUN echo "deb http://miktex.org/download/ubuntu focal universe" | tee /etc/apt/sources.list.d/miktex.list && \
+#    echo "deb http://miktex.org/download/ubuntu bionic universe" | tee /etc/apt/sources.list.d/miktex.list
 
 # Install required packages
 RUN apt --allow-unauthenticated --allow-insecure-repositories update && \
@@ -34,12 +36,17 @@ RUN apt --allow-unauthenticated --allow-insecure-repositories update && \
                     libio-pty-perl cifs-utils zsh powerline fonts-powerline gedit krb5-kdc \
                     krb5-admin-server krb5-config krb5-user msktutil libgit2-dev libpq-dev \
                     libfreetype6-dev libfreetype6 libpng-dev libtiff5-dev libjpeg-dev nodejs \
-                    npm cmake graphviz && \
+                    npm cmake graphviz r-base gdebi-core psmisc sudo net-tools telnetd libclang-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install mermaid.cli
 RUN export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && npm install -g mermaid.cli
 
+# install R and rstudio
+RUN wget https://download2.rstudio.org/server/bionic/amd64/rstudio-server-2023.03.1-446-amd64.deb
+RUN echo y | apt install rstudio-server-2023.03.1-446-amd64.deb \
+     && rm rstudio-server-2023.03.1-446-amd64.deb \
+     && cp -a /usr/lib/rstudio-server/. /workspace/rstudio  
 # Run system updates and install microsoft packages
 RUN lsb_release -rs && \
     chsh -s /usr/bin/zsh root && \
