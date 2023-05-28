@@ -47,7 +47,8 @@ RUN export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && npm install -g mermaid.cli
 RUN wget https://download2.rstudio.org/server/bionic/amd64/rstudio-server-2023.03.1-446-amd64.deb
 RUN echo y | gdebi rstudio-server-2023.03.1-446-amd64.deb \
      && rm rstudio-server-2023.03.1-446-amd64.deb \
-     && cp -a /usr/lib/rstudio-server/. /workspace/rstudio  
+     && cp -a /usr/lib/rstudio-server/. /workspace/rstudio
+     
 # Run system updates and install microsoft packages
 RUN lsb_release -rs && \
     chsh -s /usr/bin/zsh root && \
@@ -56,6 +57,7 @@ RUN lsb_release -rs && \
     curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
     curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
     apt-get update && \
+    apt autoremove &&  \
     ACCEPT_EULA=Y apt-get -y install msodbcsql18 mssql-tools18 unixodbc-dev && \
     echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bash_profile && \
     echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
