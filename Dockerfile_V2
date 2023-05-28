@@ -44,7 +44,7 @@ RUN export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && npm install -g mermaid.cli
 
 # install R and rstudio
 RUN wget https://download2.rstudio.org/server/bionic/amd64/rstudio-server-2023.03.1-446-amd64.deb
-RUN echo y | apt install -y rstudio-server-2023.03.1-446-amd64.deb \
+RUN echo y | dpkg -i rstudio-server-2023.03.1-446-amd64.deb \
      && rm rstudio-server-2023.03.1-446-amd64.deb \
      && cp -a /usr/lib/rstudio-server/. /workspace/rstudio  
 # Run system updates and install microsoft packages
