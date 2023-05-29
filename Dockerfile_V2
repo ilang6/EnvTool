@@ -19,13 +19,17 @@ RUN mkdir /workspace/rstudio && \
     apt-get install -y gnupg gnupg1 gnupg2 
     #apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 605C66F00D6C9793 0E98404D386FA1D9 648ACFD622F3D138
 
-# Set up repositories
-RUN echo "deb http://security.ubuntu.com/ubuntu focal-security main" | tee /etc/apt/sources.list.d/focal-security.list
+# Set up repositories and install libssl1.1
+RUN echo "deb http://security.ubuntu.com/ubuntu focal-security main" | tee /etc/apt/sources.list.d/focal-security.list && \
+    apt update && \
+    apt install -y libssl1.1 && \
+    rm /etc/apt/sources.list.d/focal-security.list
 #RUN echo "deb http://miktex.org/download/ubuntu focal universe" | tee /etc/apt/sources.list.d/miktex.list && \
 #    echo "deb http://miktex.org/download/ubuntu bionic universe" | tee /etc/apt/sources.list.d/miktex.list
 
 # Install required packages
 RUN apt --allow-unauthenticated --allow-insecure-repositories update && \
+    apt update && \
     apt-get install -y gnupg gnupg1 gnupg2 curl apt-transport-https apt-utils \
                     git build-essential wget htop nano openssl libssl-dev libcairo2 \
                     libcairo2-dev libcurl4-openssl-dev unixodbc* unixodbc-dev r-cran-rodbc \
@@ -37,13 +41,18 @@ RUN apt --allow-unauthenticated --allow-insecure-repositories update && \
                     libio-pty-perl cifs-utils zsh powerline fonts-powerline gedit krb5-kdc \
                     krb5-admin-server krb5-config krb5-user msktutil libgit2-dev libpq-dev \
                     libfreetype6-dev libfreetype6 libpng-dev libtiff5-dev libjpeg-dev nodejs \
-                    npm cmake graphviz r-base gdebi-core psmisc sudo net-tools telnetd libclang-dev libssl-dev libssl1.1 libssl3 && \
+                    npm cmake graphviz gdebi-core psmisc sudo net-tools telnetd libclang-dev libssl-dev apt-utils && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install mermaid.cli
 RUN export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && npm install -g mermaid.cli
 
 # install R and rstudio
+RUN apt update && \
+    apt install --no-install-recommends software-properties-common dirmngr && \
+    wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc && \
+    add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/" && \
+    apt install -y --no-install-recommends r-base
 RUN wget https://download2.rstudio.org/server/bionic/amd64/rstudio-server-2023.03.1-446-amd64.deb
 RUN echo y | gdebi rstudio-server-2023.03.1-446-amd64.deb \
      && rm rstudio-server-2023.03.1-446-amd64.deb \
