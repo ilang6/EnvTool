@@ -14,3 +14,4 @@ tensorflow
 torchaudio
 torchsummary
 tqdm
+scipy>=1.10.0rc1 # not directly required, pinned by Snyk to avoid a vulnerability
