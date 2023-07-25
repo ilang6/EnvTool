@@ -6,7 +6,7 @@ LABEL maintainer="Ilan Gofer"
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN  mkdir /workspace
-
+RUN DOCKER_BUILDKIT=0
 #creating work dir workspace 
 WORKDIR /workspace/
 
@@ -49,7 +49,7 @@ RUN export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && npm install -g mermaid.cli
 
 # install R and rstudio
 RUN apt update && \
-    apt install --no-install-recommends software-properties-common dirmngr && \
+    apt install -y --no-install-recommends software-properties-common dirmngr && \
     wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc && \
     add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/" && \
     apt install -y --no-install-recommends r-base
