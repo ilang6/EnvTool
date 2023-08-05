@@ -27,21 +27,22 @@ RUN echo "deb http://security.ubuntu.com/ubuntu focal-security main" | tee /etc/
 #RUN echo "deb http://miktex.org/download/ubuntu focal universe" | tee /etc/apt/sources.list.d/miktex.list && \
 #    echo "deb http://miktex.org/download/ubuntu bionic universe" | tee /etc/apt/sources.list.d/miktex.list
 
+
+
+
 # Install required packages
-RUN apt --allow-unauthenticated --allow-insecure-repositories update && \
-    apt update && \
-    apt-get install -y gnupg gnupg1 gnupg2 curl apt-transport-https apt-utils \
+RUN apt-get install -y gnupg gnupg1 gnupg2 curl apt-transport-https apt-utils \
                     git build-essential wget htop nano openssl libssl-dev libcairo2 \
-                    libcairo2-dev libcurl4-openssl-dev unixodbc* unixodbc-dev r-cran-rodbc \
-                    freetds-bin freetds-common tdsodbc libxt-dev libgtk2.0-dev xvfb xauth \
+                    libcairo2-dev libcurl4-openssl-dev \
+                    libxt-dev libgtk2.0-dev xvfb xauth \
                     xfonts-base libxml2-dev default-jre openjdk-8-jdk default-jdk r-cran-rjava \
-                    freetds-dev libudunits2-dev gfortran wget libxtst6 default-jre curl \
+                    libudunits2-dev gfortran wget libxtst6 default-jre curl \
                     openssh-client openssh-server openssh-sftp-server librsvg2-dev samba perl \
                     libv8-dev libnode-dev libnet-ssleay-perl libauthen-pam-perl libpam-runtime \
                     libio-pty-perl cifs-utils zsh powerline fonts-powerline gedit krb5-kdc \
                     krb5-admin-server krb5-config krb5-user msktutil libgit2-dev libpq-dev \
                     libfreetype6-dev libfreetype6 libpng-dev libtiff5-dev libjpeg-dev nodejs \
-                    npm cmake graphviz gdebi-core psmisc sudo net-tools telnetd libclang-dev libssl-dev apt-utils libgdal-dev  && \
+                    npm cmake graphviz gdebi-core psmisc sudo net-tools telnetd libclang-dev libssl-dev apt-utils libgdal-dev gpg gpg-agent  && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install mermaid.cli
@@ -58,18 +59,6 @@ RUN echo y | gdebi rstudio-server-2023.03.1-446-amd64.deb \
      && rm rstudio-server-2023.03.1-446-amd64.deb \
      && cp -a /usr/lib/rstudio-server/. /workspace/rstudio
      
-# Run system updates and install microsoft packages
-RUN lsb_release -rs && \
-    chsh -s /usr/bin/zsh root && \
-    /bin/sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)" && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 277A7293F59E4889 && \
-    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-    curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
-    apt-get update && \
-    apt autoremove &&  \
-    ACCEPT_EULA=Y apt-get -y install msodbcsql18 mssql-tools18 unixodbc-dev && \
-    echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bash_profile && \
-    echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
 
 # Install R packages
 RUN Rscript packages.r
@@ -109,3 +98,16 @@ RUN code-server --force --install-extension ms-python.python \
     code-server --force --install-extension quarto.quarto \
     code-server --force --install-extension ms-toolsai.jupyter-keymap \
     code-server --force --install-extension njpwerner.autodocstring  
+
+# Run system updates and install microsoft packages
+RUN apt-get install -y wget curl gpg gpg-agent unixodbc-dev \
+    wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O - \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 277A7293F59E4889 \
+    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    apt-get update \
+    apt autoremove  \
+    ACCEPT_EULA=Y apt-get --allow-change-held-packages --allow-downgrades -y install msodbcsql18 mssql-tools18  \
+    echo 'export PATH=\"$PATH:/opt/mssql-tools18/bin\"' >> ~/.bash_profile \
+    echo 'export PATH=\"$PATH:/opt/mssql-tools18/bin\"' >> ~/.bashrc \
+    apt upgrade -y
