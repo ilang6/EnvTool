@@ -65,7 +65,7 @@ RUN Rscript packages.r
 
 # Install additional packages and configurations based on the original Dockerfile
 # Install Anaconda
-RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2023.03-Linux-x86_64.sh -O ~/anaconda.sh && \
+RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2022.10-Linux-x86_64.sh -O ~/anaconda.sh && \
     /bin/bash ~/anaconda.sh -b -p /opt/conda && \
     rm ~/anaconda.sh && \
     ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
@@ -100,14 +100,14 @@ RUN code-server --force --install-extension ms-python.python \
     code-server --force --install-extension njpwerner.autodocstring  
 
 # Run system updates and install microsoft packages
-RUN apt-get install -y wget curl gpg gpg-agent unixodbc-dev \
-    wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O - \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 277A7293F59E4889 \
-    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-    curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list > /etc/apt/sources.list.d/mssql-release.list \
-    apt-get update \
-    apt autoremove  \
-    ACCEPT_EULA=Y apt-get --allow-change-held-packages --allow-downgrades -y install msodbcsql18 mssql-tools18  \
-    echo 'export PATH=\"$PATH:/opt/mssql-tools18/bin\"' >> ~/.bash_profile \
-    echo 'export PATH=\"$PATH:/opt/mssql-tools18/bin\"' >> ~/.bashrc \
-    apt upgrade -y
+RUN apt-get install -y wget curl gpg gpg-agent unixodbc-dev
+RUN  wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -
+RUN  apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 277A7293F59E4889
+RUN  curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+RUN  curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list > /etc/apt/sources.list.d/mssql-release.list
+RUN  apt update
+RUN  apt autoremove
+RUN  ACCEPT_EULA=Y apt-get --allow-change-held-packages --allow-downgrades -y install msodbcsql18 mssql-tools18
+RUN  echo 'export PATH=\"$PATH:/opt/mssql-tools18/bin\"' >> ~/.bash_profile
+RUN  echo 'export PATH=\"$PATH:/opt/mssql-tools18/bin\"' >> ~/.bashrc
+RUN  apt upgrade -y
