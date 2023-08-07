@@ -1,7 +1,7 @@
 h2o==3.40.0.3
 Keras
 lightgbm
-mlflow==1.27.0
+mlflow==2.4.1
 nltk
 plotly
 polars
@@ -14,3 +14,4 @@ tensorflow
 torchaudio
 torchsummary
 tqdm
+numpy>=1.22.2 # not directly required, pinned by Snyk to avoid a vulnerability
