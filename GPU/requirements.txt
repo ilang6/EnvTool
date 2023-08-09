@@ -14,3 +14,7 @@ tensorflow
 torchaudio
 torchsummary
 tqdm
+langchain
+langchain-visualizer
+langchain-utils
+neo4j
