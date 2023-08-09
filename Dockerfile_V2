@@ -1,5 +1,5 @@
 # Use rocker/rstudio as base image
-FROM ubuntu:latest
+FROM ubuntu:23.04
 
 LABEL maintainer="Ilan Gofer"
 
