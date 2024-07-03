@@ -19,20 +19,20 @@ RUN  echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bash_profile
 RUN  echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
 RUN  apt-get install -y unixodbc-dev
 RUN  Rscript -e 'install.packages("arrow")'
-RUN  wget https://github.com/VSCodium/vscodium/releases/download/1.76.2.23074/codium_1.76.2.23074_amd64.deb
-RUN  dpkg -i codium_1.76.2.23074_amd64.deb
-RUN  wget -c https://github.com/quarto-dev/quarto-cli/releases/download/v1.3.290/quarto-1.3.290-linux-amd64.deb
-RUN  dpkg -i quarto-1.3.290-linux-amd64.deb
-RUN  wget --quiet https://repo.anaconda.com/archive/Anaconda3-2023.03-Linux-x86_64.sh -O ~/anaconda.sh \
+RUN  wget https://github.com/VSCodium/vscodium/releases/download/1.76.2.23074/codium_.90.2.24171_amd64.deb
+RUN  dpkg -i codium_.90.2.24171_amd64.deb
+RUN  wget -c https://github.com/quarto-dev/quarto-cli/releases/download/v1.3.290/quarto-1.5.53-linux-amd64.deb
+RUN  dpkg -i quarto-1.5.53-linux-amd64.deb
+RUN  wget --quiet https://repo.anaconda.com/archive/Anaconda3-5.3.1-Linux-x86_64.sh -O ~/anaconda.sh \
     && /bin/bash ~/anaconda.sh -b -p /opt/conda \
     && rm ~/anaconda.sh \
     && ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
     && echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc \
     && echo "conda activate base" >> ~/.bashrc
 RUN  /opt/conda/bin/pip install -r requirements.txt
-RUN  wget https://download.jetbrains.com/python/pycharm-community-2022.3.tar.gz
-RUN  tar -xzf pycharm-community-2022.3.tar.gz
-RUN  rm pycharm-community-2022.3.tar.gz
+RUN  wget https://download.jetbrains.com/python/pycharm-community-2024.1.4.tar.gz
+RUN  tar -xzf pycharm-community-2024.1.4.tar.gz
+RUN  rm pycharm-community-2024.1.4.tar.gz
 RUN  curl -fsSL https://code-server.dev/install.sh | sh
 RUN  mkdir -p ~/.local/share/code-server/ \
     && mkdir -p ~/.local/share/code-server/User 
@@ -54,3 +54,5 @@ RUN  code-server --force --install-extension ms-python.python \
 
 RUN  Rscript packages.r
 RUN  cp -a /workspace/rstudio/. /usr/lib/rstudio-server/
+RUN apt update \
+    apt upgrade 
