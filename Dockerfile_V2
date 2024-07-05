@@ -1,5 +1,5 @@
 # Use rocker/rstudio as base image
-FROM ubuntu:24.10
+FROM ubuntu:23.04
 
 LABEL maintainer="Ilan Gofer"
 
@@ -59,10 +59,6 @@ RUN echo y | gdebi rstudio-server-2024.04.2-764-amd64.deb \
      && rm rstudio-server-2024.04.2-764-amd64.deb \
      && cp -a /usr/lib/rstudio-server/. /workspace/rstudio
      
-
-# Install R packages
-RUN Rscript packages.r
-
 # Install additional packages and configurations based on the original Dockerfile
 # Install Anaconda
 RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2022.10-Linux-x86_64.sh -O ~/anaconda.sh && \
@@ -75,8 +71,8 @@ RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2022.10-Linux-x86_6
 
 # Install other applications
 RUN wget https://github.com/VSCodium/vscodium/releases/download/1.90.2.24171/codium_1.90.2.24171_amd64.deb && \
-    dpkg -i codium_.90.2.24171_amd64.deb && \
-    wget -c https://github.com/quarto-dev/quarto-cli/releases/download/v1.3.290/quarto-1.5.53-linux-amd64.deb && \
+    dpkg -i codium_1.90.2.24171_amd64.deb && \
+    wget -c https://github.com/quarto-dev/quarto-cli/releases/download/v1.5.53/quarto-1.5.53-linux-amd64.deb && \
     dpkg -i quarto-1.5.53-linux-amd64.deb && \
     /opt/conda/bin/pip install -r requirements.txt && \
     wget https://download.jetbrains.com/python/pycharm-community-2024.1.4.tar.gz && \
@@ -104,14 +100,18 @@ RUN code-server --force --install-extension ms-python.python \
     code-server --force --install-extension DanielSanMedium.dscodegpt
 
 # Run system updates and install microsoft packages
-RUN apt-get install -y wget curl gpg gpg-agent unixodbc-dev
+RUN apt-get install -y wget curl gpg gpg-agent unixodbc-dev lsb-release
+RUN  rm /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
 RUN  wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -
 RUN  apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 277A7293F59E4889
-RUN  curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
-RUN  curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list > /etc/apt/sources.list.d/mssql-release.list
+RUN  curl https://packages.microsoft.com/keys/microsoft.asc | tee /etc/apt/trusted.gpg.d/microsoft.asc
+RUN  curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list | tee /etc/apt/sources.list.d/mssql-release.list
 RUN  apt update
 RUN  apt autoremove
 RUN  ACCEPT_EULA=Y apt-get --allow-change-held-packages --allow-downgrades -y install msodbcsql18 mssql-tools18
 RUN  echo 'export PATH=\"$PATH:/opt/mssql-tools18/bin\"' >> ~/.bash_profile
 RUN  echo 'export PATH=\"$PATH:/opt/mssql-tools18/bin\"' >> ~/.bashrc
 RUN  apt upgrade -y
+
+# Install R packages
+RUN Rscript packages.r

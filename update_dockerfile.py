@@ -14,6 +14,22 @@ SERPER_KEY = config('SERPER_KEY')
 
 def get_latest_release_github(repo):
     """Get the latest release tag from a GitHub repository."""
+    """
+    Fetch the latest release tag from a specified GitHub repository.
+
+    Args:
+        repo (str): The GitHub repository in the format 'owner/repo'.
+    
+    Returns:
+        str: The tag name of the latest release.
+
+    Raises:
+        requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
+    
+    Example:
+        >>> get_latest_release_github('octocat/Hello-World')
+        'v1.0.1'
+    """
     url = f'https://api.github.com/repos/{repo}/releases/latest'
     response = requests.get(url)
     response.raise_for_status()
@@ -84,13 +100,14 @@ def update_dockerfile(file_path):
 
     # Update VSCodium version
     codium_version = get_latest_release_github('VSCodium/vscodium')
-    content = re.sub(r'codium_\d+\.\d+\.\d+\.\d+_amd64\.deb', f'codium_{codium_version[1:]}_amd64.deb', content)
-    content = re.sub(r'VSCodium/vscodium/releases/download/\d+\.\d+\.\d+\.\d+', f'VSCodium/vscodium/releases/download/{codium_version[1:]}', content)
+    content = re.sub(r'codium_\d+\.\d+\.\d+\.\d+_amd64\.deb', f'codium_{codium_version}_amd64.deb', content)
+    content = re.sub(r'VSCodium/vscodium/releases/download/\d+\.\d+\.\d+\.\d+', f'VSCodium/vscodium/releases/download/{codium_version}', content)
     print(content)
 
     # Update Quarto version
     quarto_version = get_latest_release_github('quarto-dev/quarto-cli')
     content = re.sub(r'quarto-\d+\.\d+\.\d+-linux-amd64\.deb', f'quarto-{quarto_version[1:]}-linux-amd64.deb', content)
+    content = re.sub(r'quarto-cli/releases/download/\d+\.\d+\.\d+', f'quarto-cli/releases/download/{quarto_version[1:]}', content)
     print(content)
 
     # Update Anaconda version
@@ -102,9 +119,9 @@ def update_dockerfile(file_path):
     pycharm_version = get_latest_pycharm_rstudio_version('pycharm','jetbrains.com')
     content = re.sub(r'pycharm-community-\d+\.\d+\.tar\.gz', f'pycharm-community-{pycharm_version}.tar.gz', content)
     print(content)
+
     
     # Update RStudio version
-    rstudio_version = get_latest_pycharm_rstudio_version('rstudio server','posit.co')
     rstudio_version = rstudio_version.replace('+','-')
     content = re.sub(r'rstudio-server-\d+\.\d+\.\d+-amd64\.deb', f'rstudio-server-{rstudio_version}-amd64.deb', content)
 
@@ -113,7 +130,7 @@ def update_dockerfile(file_path):
         file.write(content)
 
 if __name__ == "__main__":
-    dockerfile_path = '/Users/ilangofer/EnvTool/Dockerfile_V2'
+    dockerfile_path = '/Users/ilangofer/EnvTool/Dockerfile_V2 copy'
     update_dockerfile(dockerfile_path)
     print(f'Dockerfile updated with the latest versions of the tools.')
 
