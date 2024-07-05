@@ -35,8 +35,26 @@ def get_latest_release_github(repo):
     response.raise_for_status()
     return response.json()['tag_name']
 
+"""
+Get the latest Anaconda version from the Anaconda website.
+This function fetches the list of available Anaconda versions and then selects the most recent one.
+
+"""
 def get_latest_anaconda_version():
-    """Get the latest Anaconda version from the Anaconda website."""
+    """Get the latest Anaconda version from the Anaconda website.
+
+    This function fetches the list of available Anaconda versions and then selects the most recent one.
+
+    Returns:
+        str: The tag name of the latest release.
+    
+    Raises:
+        requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
+    
+    Example:
+        >>> get_latest_anaconda_version()
+        '2022.05'
+    """
     url = 'https://repo.anaconda.com/archive/'
     response = requests.get(url)
     response.raise_for_status()
@@ -133,6 +151,4 @@ if __name__ == "__main__":
     dockerfile_path = '/Users/ilangofer/EnvTool/Dockerfile_V2 copy'
     update_dockerfile(dockerfile_path)
     print(f'Dockerfile updated with the latest versions of the tools.')
-
-
 
