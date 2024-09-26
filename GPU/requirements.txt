@@ -1,7 +1,7 @@
 h2o==3.40.0.3
 Keras
 lightgbm
-mlflow==1.27.0
+mlflow==2.10.0
 nltk
 plotly
 polars
