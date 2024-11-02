@@ -42,7 +42,7 @@ def get_latest_anaconda_version():
     response.raise_for_status()
     soup = BeautifulSoup(response.text, 'html.parser')
     versions = [a.text for a in soup.find_all('a') if 'Anaconda3' in a.text and 'Linux-x86_64.sh' in a.text]
-    latest_version = versions[0].split('-')[1]
+    latest_version = versions[0].split('-')[1]+'-'+versions[0].split('-')[2]
     return latest_version
 
 def get_latest_pycharm_rstudio_version(prompt,site):
@@ -107,7 +107,7 @@ def update_dockerfile(file_path):
     # Update Quarto version
     quarto_version = get_latest_release_github('quarto-dev/quarto-cli')
     content = re.sub(r'quarto-\d+\.\d+\.\d+-linux-amd64\.deb', f'quarto-{quarto_version[1:]}-linux-amd64.deb', content)
-    content = re.sub(r'quarto-cli/releases/download/\d+\.\d+\.\d+', f'quarto-cli/releases/download/{quarto_version[1:]}', content)
+    content = re.sub(r'quarto-cli/releases/download/\d+\.\d+\.\d+', f'quarto-cli/releases/download/v{quarto_version[1:]}', content)
     print(content)
 
     # Update Anaconda version
@@ -122,6 +122,7 @@ def update_dockerfile(file_path):
 
     
     # Update RStudio version
+    rstudio_version = get_latest_pycharm_rstudio_version('Rstudio','https://posit.co/download/rstudio-server/')
     rstudio_version = rstudio_version.replace('+','-')
     content = re.sub(r'rstudio-server-\d+\.\d+\.\d+-amd64\.deb', f'rstudio-server-{rstudio_version}-amd64.deb', content)
 
@@ -130,7 +131,7 @@ def update_dockerfile(file_path):
         file.write(content)
 
 if __name__ == "__main__":
-    dockerfile_path = '/Users/ilangofer/EnvTool/Dockerfile_V2 copy'
+    dockerfile_path = '/Users/ilangofer/EnvTool/Dockerfile_V2'
     update_dockerfile(dockerfile_path)
     print(f'Dockerfile updated with the latest versions of the tools.')
 

@@ -49,6 +49,7 @@ RUN apt-get install -y gnupg gnupg1 gnupg2 curl apt-transport-https apt-utils \
 RUN export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && npm install -g mermaid.cli
 
 # install R and rstudio
+RUN cp /etc/apt/sources.list.d /workspace
 RUN apt update && \
     apt install -y --no-install-recommends software-properties-common dirmngr && \
     wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc && \
@@ -61,7 +62,7 @@ RUN echo y | gdebi rstudio-server-2024.04.2-764-amd64.deb \
      
 # Install additional packages and configurations based on the original Dockerfile
 # Install Anaconda
-RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2022.10-Linux-x86_64.sh -O ~/anaconda.sh && \
+RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Linux-x86_64.sh -O ~/anaconda.sh && \
     /bin/bash ~/anaconda.sh -b -p /opt/conda && \
     rm ~/anaconda.sh && \
     ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
@@ -70,10 +71,10 @@ RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2022.10-Linux-x86_6
     /opt/conda/bin/pip install -r requirements.txt
 
 # Install other applications
-RUN wget https://github.com/VSCodium/vscodium/releases/download/1.90.2.24171/codium_1.90.2.24171_amd64.deb && \
-    dpkg -i codium_1.90.2.24171_amd64.deb && \
-    wget -c https://github.com/quarto-dev/quarto-cli/releases/download/v1.5.53/quarto-1.5.53-linux-amd64.deb && \
-    dpkg -i quarto-1.5.53-linux-amd64.deb && \
+RUN wget https://github.com/VSCodium/vscodium/releases/download/1.94.2.24286/codium_1.94.2.24286_amd64.deb && \
+    dpkg -i codium_1.94.2.24286_amd64.deb && \
+    wget -c https://github.com/quarto-dev/quarto-cli/releases/download/v1.5.57/quarto-1.5.57-linux-amd64.deb && \
+    dpkg -i quarto-1.5.57-linux-amd64.deb && \
     /opt/conda/bin/pip install -r requirements.txt && \
     wget https://download.jetbrains.com/python/pycharm-community-2024.1.4.tar.gz && \
     rm pycharm-community-2024.1.4.tar.gz
@@ -84,7 +85,7 @@ RUN curl -fsSL https://code-server.dev/install.sh | sh && \
     mkdir -p ~/.local/share/code-server/User
 
 # Install ollama
-RUN curl -fsSL https://ollama.com/install.sh | sh
+#RUN curl -fsSL https://ollama.com/install.sh | sh
 
 # Install VSCode Extensions
 RUN code-server --force --install-extension ms-python.python \ 
@@ -97,11 +98,13 @@ RUN code-server --force --install-extension ms-python.python \
     code-server --force --install-extension quarto.quarto \
     code-server --force --install-extension ms-toolsai.jupyter-keymap \
     code-server --force --install-extension njpwerner.autodocstring   \
-    code-server --force --install-extension DanielSanMedium.dscodegpt
+    code-server --force --install-extension DanielSanMedium.dscodegpt \
+    code-server --force --install-extension JFrog.jfrog-vscode-extension
 
 # Run system updates and install microsoft packages
 RUN apt-get install -y wget curl gpg gpg-agent unixodbc-dev lsb-release
 RUN  rm /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+RUN cp /workspace/sources.list.d /etc/apt/sources.list.d
 RUN  wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -
 RUN  apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 277A7293F59E4889
 RUN  curl https://packages.microsoft.com/keys/microsoft.asc | tee /etc/apt/trusted.gpg.d/microsoft.asc
