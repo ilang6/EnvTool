@@ -1,0 +1,59 @@
+# Base image with CUDA 12.8.1 and UBI 9
+FROM nvidia/cuda:12.8.1-base-ubi9
+
+# Install necessary packages
+RUN dnf install -y \
+    python3.12 \
+    python3.12-pip \
+    curl \
+    tar \
+    gzip \
+    nodejs \
+    && dnf clean all
+
+# Set Python 3.12 as default
+RUN alternatives --install /usr/bin/python python /usr/bin/python3.12 1 \
+    && alternatives --install /usr/bin/pip pip /usr/bin/pip3.12 1
+
+# Upgrade pip and install cuda-python
+RUN pip install --upgrade pip \
+    && pip install cuda-python
+
+# Set environment variables
+ENV CODE_SERVER_VERSION=4.89.1
+ENV CODE_SERVER_INSTALL_DIR=/usr/lib/code-server
+ENV PATH="$CODE_SERVER_INSTALL_DIR/bin:$PATH"
+
+# Download and install code-server
+RUN curl -fL https://github.com/coder/code-server/releases/download/v$CODE_SERVER_VERSION/code-server-$CODE_SERVER_VERSION-linux-amd64.tar.gz \
+    | tar -C /usr/lib -xz \
+    && mv /usr/lib/code-server-$CODE_SERVER_VERSION-linux-amd64 $CODE_SERVER_INSTALL_DIR
+
+# Install VSCode Extensions
+RUN code-server --force --install-extension ms-python.python \ 
+    code-server --force --install-extension Continue.continue \
+    code-server --force --install-extension GrapeCity.gc-excelviewer \
+    code-server --force --install-extension ms-toolsai.jupyter \
+    code-server --force --install-extension ritwickdey.LiveServer \
+    code-server --force --install-extension ms-python.vscode-pylance \
+    code-server --force --install-extension neuron.neuron-IPE \
+    code-server --force --install-extension quarto.quarto \
+    code-server --force --install-extension ms-toolsai.jupyter-keymap \
+    code-server --force --install-extension njpwerner.autodocstring   \
+    code-server --force --install-extension DanielSanMedium.dscodegpt \
+    code-server --force --install-extension JFrog.jfrog-vscode-extension
+
+# Create a user to run code-server
+RUN useradd -m coder
+
+# Set working directory
+WORKDIR /home/coder
+
+# Expose the default code-server port
+EXPOSE 8080
+
+# Switch to the non-root user
+USER coder
+
+# Start code-server
+CMD ["code-server", "--bind-addr", "0.0.0.0:8080", "--auth", "none"]
