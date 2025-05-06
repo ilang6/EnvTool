@@ -7,6 +7,8 @@ RUN yum install -y \
     python3.12-pip \
     tar \
     gzip \
+    git \
+    nano \
     nodejs \
     unixODBC \
     unixODBC-devel \
@@ -40,27 +42,23 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > mic
     && echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
 
 
+#Create working directory
+
+#RUN mkdir /opt/app-root/ && mkdir /opt/app-root/src
+
 # Set working directory
-WORKDIR /home/coder
 
-#Copy Vscode extensions
-COPY . .
+#WORKDIR /opt/app-root/src
 
-# Install VSCode Extensions
-RUN code-server --install-extension ms-python.python \
-    && code-server --install-extension GrapeCity.gc-excelviewer \
-    && code-server --install-extension extensions/janjoerke.jenkins-pipeline-linter-connector-1.2.0.vsix \
-    && code-server --install-extension ms-toolsai.jupyter \
-    && code-server --install-extension ritwickdey.LiveServer \
-    && code-server --install-extension ms-toolsai.jupyter-keymap \
-    && code-server --install-extension njpwerner.autodocstring \
-    && code-server --install-extension janjoerke.jenkins-pipeline-linter-connector \
-    && code-server --install-extension Continue.continue \
-    && code-server --install-extension esbenp.prettier-vscode \
-    && code-server --install-extension JFrog.jfrog-vscode-extension
+# Give permissions to folder 
 
-# Create a user to run code-server
-RUN useradd -m coder
+#RUN chmod -R 777 /opt/app-root/src
+
+# Create a non-root user with a home directory
+
+RUN useradd --create-home --home-dir /opt/app-root/src coder \
+    && chown -R coder:coder /opt/app-root/src \
+    && chmod -R 777 /opt/app-root/src
 
 # Expose the default code-server port
 EXPOSE 8080
@@ -68,6 +66,16 @@ EXPOSE 8080
 # Switch to the non-root user
 USER coder
 
+# Install VSCode Extensions
+RUN code-server --install-extension ms-python.python \
+    && code-server --install-extension GrapeCity.gc-excelviewer \
+    && code-server --install-extension ms-toolsai.jupyter \
+    && code-server --install-extension ritwickdey.LiveServer \
+    && code-server --install-extension ms-toolsai.jupyter-keymap \
+    && code-server --install-extension njpwerner.autodocstring \
+    && code-server --install-extension Continue.continue \
+    && code-server --install-extension esbenp.prettier-vscode \
+    && code-server --install-extension JFrog.jfrog-vscode-extension
 
 # Start code-server
-CMD ["code-server", "--bind-addr", "0.0.0.0:8080", "--auth", "none"]
+CMD ["code-server", "--bind-addr", "0.0.0.0:8080", "--auth", "none", "--user-data-dir", "/opt/app-root/src", "--extensions-dir", "/opt/app-root/src/.local/share/code-server/extensions"]
